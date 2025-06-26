@@ -198,5 +198,8 @@ class Trip(BaseModel):
 
     @property
     def length_days(self) -> str:
-        length = (datetime.fromtimestamp(self.end_date or 0) - datetime.fromtimestamp(self.start_date or 0)).days
+        length = (
+            datetime.fromtimestamp(self.end_date or 0)
+            - datetime.fromtimestamp(self.start_date or 0)
+        ).days
         return f"{length} day{'' if length == 1 else 's'}"

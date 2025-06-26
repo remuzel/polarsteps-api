@@ -79,23 +79,32 @@ class PolarstepsClient:
             base_url=self.base_url,
             remember_token=remember_token,
         )
+        self.cache = {}  # todo: use a library with proper TTL-management
 
     def get_trip(self, trip_id: str) -> TripResponse:
+        if trip_id in self.cache:
+            return self.cache[trip_id]
         request = GetTripRequest(trip_id)
         response = self.http_client.execute(request)
 
-        return TripResponse(
+        trip_response = TripResponse(
             data=response.data,
             status_code=response.status_code,
             headers=response.headers,
         )
+        self.cache[trip_id] = trip_response
+        return trip_response
 
     def get_user_by_username(self, username: str) -> UserResponse:
+        if username in self.cache:
+            return self.cache[username]
         request = GetUserByUsernameRequest(username)
         response = self.http_client.execute(request)
 
-        return UserResponse(
+        user_response = UserResponse(
             data=response.data,
             status_code=response.status_code,
             headers=response.headers,
         )
+        self.cache[username] = user_response
+        return user_response
