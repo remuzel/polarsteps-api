@@ -195,3 +195,8 @@ class Trip(BaseModel):
         if isinstance(v, (int, float)) and v < 0:
             raise ValueError("Timestamp cannot be negative")
         return v
+
+    @property
+    def length_days(self) -> str:
+        length = (datetime.fromtimestamp(self.end_date or 0) - datetime.fromtimestamp(self.start_date or 0)).days
+        return f"{length} day{'' if length == 1 else 's'}"
