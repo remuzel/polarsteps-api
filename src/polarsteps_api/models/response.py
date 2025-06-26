@@ -18,13 +18,6 @@ class TripResponse(BaseResponse):
         else:
             self.trip = None
 
-    @property
-    def is_shared_trip(self) -> Optional[bool]:
-        if not self.trip:
-            return None
-        buddies = self.trip.trip_buddies
-        return buddies is not None and len(buddies) > 0
-
 
 class UserResponse(BaseResponse):
     def __init__(self, data: Any, status_code: int, headers: dict[str, str]) -> None:
@@ -38,11 +31,3 @@ class UserResponse(BaseResponse):
                 self.user = None
         else:
             self.user = None
-
-    @property
-    def is_popular(self) -> bool:
-        if not self.user:
-            return False
-        n_followers = len(self.user.followers or [])
-        n_followees = len(self.user.followees or [])
-        return n_followees > n_followers

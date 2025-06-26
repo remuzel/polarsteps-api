@@ -203,3 +203,8 @@ class Trip(BaseModel):
             - datetime.fromtimestamp(self.start_date or 0)
         ).days
         return f"{length} day{'' if length == 1 else 's'}"
+
+    @property
+    def is_shared_trip(self) -> Optional[bool]:
+        buddies = self.trip_buddies
+        return buddies is not None and len(buddies) > 0

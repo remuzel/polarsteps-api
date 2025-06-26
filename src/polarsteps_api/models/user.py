@@ -97,3 +97,9 @@ class User(BaseModel):
         if isinstance(v, (int, float)) and v < 0:
             raise ValueError("Timestamp cannot be negative")
         return v
+
+    @property
+    def is_popular(self) -> bool:
+        n_followers = len(self.followers or [])
+        n_followees = len(self.followees or [])
+        return n_followees > n_followers
