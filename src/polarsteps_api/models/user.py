@@ -113,7 +113,11 @@ class User(BaseModel):
             "last_name": self.last_name,
             "description": self.description,
             "profile_image_path": self.profile_image_path,
-            "living_location": self.living_location.model_dump(exclude={"uuid", "precision"}) if self.living_location else "Unknown",
+            "living_location": self.living_location.model_dump(
+                exclude={"uuid", "precision"}
+            )
+            if self.living_location
+            else "Unknown",
             "country_count": self.country_count,
             "trip_count": len(self.alltrips or []),
             "followers": [follower.username for follower in (self.followers or [])],

@@ -41,7 +41,7 @@ def main():
     if get_trip_response.is_error or trip is None:
         exit()
     print(f"Random Trip - {(trip.name or 'Unknown').strip()} {int(trip.total_km):,}km")  # type: ignore
-    print(f"\t{trip.to_summary()}")
+    print(f"\t{trip.to_detailed_summary()}")
     with open(f"data/{args.username}-{trip.slug}.json", "w") as f:
         f.write(trip.model_dump_json(indent=4))
 

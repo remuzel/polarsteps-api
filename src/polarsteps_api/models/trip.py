@@ -239,13 +239,16 @@ class Trip(BaseModel):
         summary = self.to_summary()
         summary.update(
             {
-                "key_locations": [
+                "steps": [
                     {
                         "name": step.location.name if step.location else step.name,
-                        "country": step.location.country if step.location else "Unknown",
+                        "country": step.location.country
+                        if step.location
+                        else "Unknown",
                         "start_time": step.start_time,
                     }
-                    for step in (self.all_steps or [])[:num_steps] if len(step.description or "") > 0
+                    for step in (self.all_steps or [])[:num_steps]
+                    if len(step.description or "") > 0
                     if not step.is_deleted
                 ],
                 "trip_buddies": [buddy.username for buddy in (self.trip_buddies or [])],
