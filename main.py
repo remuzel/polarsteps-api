@@ -14,7 +14,7 @@ load_dotenv()
 def main():
     parser = argparse.ArgumentParser(description="Polarsteps API Client Demo")
     parser.add_argument("--username", help="Polarsteps username", required=True)
-    parser.add_argument("--trip-id", help="Specific trip ID to fetch", required=True)
+    parser.add_argument("--trip-id", help="Specific trip ID to fetch")
 
     args = parser.parse_args()
 
@@ -27,6 +27,9 @@ def main():
     print(
         f"@{args.username} - {user_data.first_name} {user_data.last_name} [{user_data.country_count} countries / {int(user_data.stats.km_count):,}km]"  # type: ignore
     )
+    print(f"\t{user_data.to_summary()}")
+    with open(f"data/{args.username}.json", "w") as f:
+        f.write(user_data.model_dump_json(indent=4))
 
     trip_id = (
         str(random.choice(user_data.alltrips).id)
@@ -38,6 +41,9 @@ def main():
     if get_trip_response.is_error or trip is None:
         exit()
     print(f"Random Trip - {(trip.name or 'Unknown').strip()} {int(trip.total_km):,}km")  # type: ignore
+    print(f"\t{trip.to_summary()}")
+    with open(f"data/{args.username}-{trip.slug}.json", "w") as f:
+        f.write(trip.model_dump_json(indent=4))
 
 
 if __name__ == "__main__":

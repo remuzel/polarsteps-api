@@ -103,3 +103,31 @@ class User(BaseModel):
         n_followers = len(self.followers or [])
         n_followees = len(self.followees or [])
         return n_followees > n_followers
+
+    def to_summary(self) -> dict:
+        """Return a compact summary of the user"""
+        return {
+            "id": self.id,
+            "username": self.username,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "description": self.description,
+            "profile_image_path": self.profile_image_path,
+            "living_location": self.living_location.model_dump(exclude={"uuid", "precision"}) if self.living_location else "Unknown",
+            "country_count": self.country_count,
+            "trip_count": len(self.alltrips or []),
+            "followers": [follower.username for follower in (self.followers or [])],
+            "followers_count": len(self.followers or []),
+            "followees": [followee.username for followee in (self.followees or [])],
+            "followees_count": len(self.followees or []),
+            "is_popular": self.is_popular,
+            "stats": self.stats.model_dump() if self.stats else "Unknown",
+        }
+
+    def to_trips_summary(self) -> dict:
+        """Return user info with trip summaries only"""
+        summary = self.to_summary()
+        summary["trips"] = [
+            trip.to_summary() for trip in (self.alltrips or []) if not trip.is_deleted
+        ]
+        return summary

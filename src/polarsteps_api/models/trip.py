@@ -197,14 +197,62 @@ class Trip(BaseModel):
         return v
 
     @property
+    def datetime_start(self) -> datetime:
+        return datetime.fromtimestamp(self.start_date or 0)
+
+    @property
+    def datetime_end(self) -> datetime:
+        return datetime.fromtimestamp(self.start_date or 0)
+
+    @property
     def length_days(self) -> str:
-        length = (
-            datetime.fromtimestamp(self.end_date or 0)
-            - datetime.fromtimestamp(self.start_date or 0)
-        ).days
+        length = (self.datetime_start - self.datetime_end).days + 1
         return f"{length} day{'' if length == 1 else 's'}"
 
     @property
     def is_shared_trip(self) -> Optional[bool]:
         buddies = self.trip_buddies
         return buddies is not None and len(buddies) > 0
+
+    def to_summary(self) -> dict:
+        """Return a compact summary of the trip"""
+        y_m_d_format = "%Y/%m/%d"
+        return {
+            "id": self.id,
+            "uuid": self.uuid,
+            "display_name": self.display_name,
+            "summary": self.summary,
+            "start_date": self.datetime_start.strftime(y_m_d_format),
+            "end_date": self.datetime_end.strftime(y_m_d_format),
+            "length_days": self.length_days,
+            "total_km": self.total_km,
+            "step_count": self.step_count,
+            "country_count": self.country_count,
+            "views": self.views,
+            "like_count": self.like_count,
+            "is_shared_trip": self.is_shared_trip,
+            "cover_photo_path": self.cover_photo_path,
+        }
+
+    def to_detailed_summary(self, num_steps: int = 5) -> dict:
+        """Return a more detailed summary including key steps"""
+        summary = self.to_summary()
+        summary.update(
+            {
+                "key_locations": [
+                    {
+                        "name": step.location.name if step.location else step.name,
+                        "country": step.location.country if step.location else "Unknown",
+                        "start_time": step.start_time,
+                    }
+                    for step in (self.all_steps or [])[:num_steps] if len(step.description or "") > 0
+                    if not step.is_deleted
+                ],
+                "trip_buddies": [buddy.username for buddy in (self.trip_buddies or [])],
+                "trip_buddies_count": len(self.trip_buddies or []),
+                "media_count": sum(
+                    len(step.media or []) for step in (self.all_steps or [])
+                ),
+            }
+        )
+        return summary
