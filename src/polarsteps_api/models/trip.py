@@ -102,6 +102,21 @@ class Step(BaseModel):
     media: Optional[list[MediaItem]] = []
     user_likes: Optional[list[dict[str, Any]]] = []
 
+    def to_summary(self) -> dict:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "timestamp": datetime.fromtimestamp(self.creation_time or 0).strftime("%Y/%m/%d %H:%M:%S"),
+            "location": self.location.model_dump(exclude={"uuid", "precision", "full_detail", "administrative_area"}) if self.location else {},
+            "weather": {
+                "condition": self.weather_condition,
+                "temperature": self.weather_temperature,
+            },
+            "views": self.views,
+            "comments": self.comment_count,
+            "likes": len(self.user_likes or []),
+        }
+
 
 class TravelTrackerDevice(BaseModel):
     id: int
@@ -219,8 +234,7 @@ class Trip(BaseModel):
         y_m_d_format = "%Y/%m/%d"
         return {
             "id": self.id,
-            "uuid": self.uuid,
-            "display_name": self.display_name,
+            "name": self.name,
             "summary": self.summary,
             "start_date": self.datetime_start.strftime(y_m_d_format),
             "end_date": self.datetime_end.strftime(y_m_d_format),
@@ -234,23 +248,13 @@ class Trip(BaseModel):
             "cover_photo_path": self.cover_photo_path,
         }
 
-    def to_detailed_summary(self, num_steps: int = 5) -> dict:
+    def to_detailed_summary(self, n_steps: int = 5) -> dict:
         """Return a more detailed summary including key steps"""
+        steps = [step for step in self.all_steps if len(step.name or "") > 0] if self.all_steps else []
         summary = self.to_summary()
         summary.update(
             {
-                "steps": [
-                    {
-                        "name": step.location.name if step.location else step.name,
-                        "country": step.location.country
-                        if step.location
-                        else "Unknown",
-                        "start_time": step.start_time,
-                    }
-                    for step in (self.all_steps or [])[:num_steps]
-                    if len(step.description or "") > 0
-                    if not step.is_deleted
-                ],
+                "steps": [step.to_summary() for step in steps[:n_steps]],
                 "trip_buddies": [buddy.username for buddy in (self.trip_buddies or [])],
                 "trip_buddies_count": len(self.trip_buddies or []),
                 "media_count": sum(

@@ -170,7 +170,7 @@ class TestTripToDetailedSummary:
             trip_buddies=trip_buddies,
         )
 
-        detailed_summary = trip.to_detailed_summary(num_steps=2)
+        detailed_summary = trip.to_detailed_summary(n_steps=2)
 
         # Check that it includes basic summary fields
         assert detailed_summary["id"] == 123
@@ -267,7 +267,7 @@ class TestTripToDetailedSummary:
 
         trip = Trip(id=123, uuid="test-trip", all_steps=steps)
 
-        detailed_summary = trip.to_detailed_summary(num_steps=3)
+        detailed_summary = trip.to_detailed_summary(n_steps=3)
 
         assert len(detailed_summary["steps"]) == 3
 
