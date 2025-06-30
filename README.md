@@ -50,10 +50,36 @@ The API client relies on an authenticated token, for which you must be an active
 1. Log in to [Polarsteps](https://www.polarsteps.com/) in your browser
 2. Open browser developer tools (F12)
 3. Go to Application/Storage tab → Cookies
-4. Find the `POLARSTEPS_REMEMBER_TOKEN` cookie value
+4. Find the `remember_token` cookie value
 5. Copy this value to use with the client
+  - _e.g.: `export POLARSTEPS_REMEMBER_TOKEN=<your-token-here>`_
 
 ## Supported APIs
 1. `get_user_by_username` - Fetch complete user profile including trips, statistics, followers, and followees
 2. `get_trip` - Get detailed information for individual trips by ID
 3. _more tbd!_
+
+---
+
+## ⚠️ Important Disclaimers
+
+### Legal Notice
+This project is **NOT affiliated with, endorsed by, or connected to Polarsteps** in any way. It uses undocumented APIs discovered through browser network analysis for educational and personal use purposes.
+
+### Terms of Use
+- **Personal Use Only**: This tool is intended solely for accessing your own Polarsteps data
+- **User Responsibility**: You are solely responsible for complying with Polarsteps' Terms of Service
+- **Authentication Required**: You must have legitimate access to a Polarsteps account and provide your own authentication cookies
+- **No Warranty**: This software is provided "as-is" without any warranties or guarantees
+
+### Risks and Limitations
+- Polarsteps may change their APIs at any time, breaking this tool
+- Using this tool may violate Polarsteps' Terms of Service
+- Your account could potentially be suspended or terminated
+- The tool may stop working without notice due to security or policy changes
+
+### Respectful Usage
+- Do not use this for commercial purposes or high-volume data extraction
+- Consider the impact on Polarsteps' infrastructure
+
+**By using this software, you acknowledge that you understand these risks and agree to use it responsibly.**
