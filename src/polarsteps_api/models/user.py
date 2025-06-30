@@ -41,7 +41,6 @@ class Stats(BaseModel):
         return v
 
 
-# TODO - Figure out circular dependencies (with User and Trip)
 class User(BaseModel):
     id: int
     uuid: str

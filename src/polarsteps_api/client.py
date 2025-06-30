@@ -1,7 +1,8 @@
 import os
-from typing import Optional
+from typing import Optional, Union
 
 import requests
+from cachetools import TTLCache
 from dotenv import load_dotenv
 
 from polarsteps_api.models.base import BaseRequest, BaseResponse
@@ -66,6 +67,8 @@ class PolarstepsClient:
     def __init__(
         self,
         remember_token: Optional[str] = None,
+        cache_ttl: int = 300,  # 5 minutes,
+        cache_maxsize: int = 1_000,
     ):
         if not remember_token:
             load_dotenv()
@@ -79,11 +82,17 @@ class PolarstepsClient:
             base_url=self.base_url,
             remember_token=remember_token,
         )
-        self.cache = {}  # todo: use a library with proper TTL-management
+        self._cache: TTLCache[str, Union[TripResponse, UserResponse]] = TTLCache(
+            maxsize=cache_maxsize, ttl=cache_ttl
+        )
 
     def get_trip(self, trip_id: str) -> TripResponse:
-        if trip_id in self.cache:
-            return self.cache[trip_id]
+        # Check the cache first
+        cached_response = self._cache.get(trip_id)
+        if cached_response is not None and isinstance(cached_response, TripResponse):
+            return cached_response
+
+        # Cache miss - make the API call
         request = GetTripRequest(trip_id)
         response = self.http_client.execute(request)
 
@@ -92,12 +101,20 @@ class PolarstepsClient:
             status_code=response.status_code,
             headers=response.headers,
         )
-        self.cache[trip_id] = trip_response
+
+        # Avoid caching error responses
+        if trip_response.is_success:
+            self._cache[trip_id] = trip_response
+
         return trip_response
 
     def get_user_by_username(self, username: str) -> UserResponse:
-        if username in self.cache:
-            return self.cache[username]
+        # Check the cache first
+        cached_response = self._cache.get(username)
+        if cached_response is not None and isinstance(cached_response, UserResponse):
+            return cached_response
+
+        # Cache miss - make the API call
         request = GetUserByUsernameRequest(username)
         response = self.http_client.execute(request)
 
@@ -106,5 +123,9 @@ class PolarstepsClient:
             status_code=response.status_code,
             headers=response.headers,
         )
-        self.cache[username] = user_response
+
+        # Avoid caching error responses
+        if user_response.is_success:
+            self._cache[username] = user_response
+
         return user_response
