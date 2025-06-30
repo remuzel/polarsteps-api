@@ -354,8 +354,8 @@ class TestUserModelIntegration:
         from polarsteps_api.models.trip import TripBuddy
 
         # Create trip buddies
-        buddy1 = TripBuddy(buddy_user_id=2, uuid="buddy-1", username="alice")
-        buddy2 = TripBuddy(buddy_user_id=3, uuid="buddy-2", username="bob")
+        buddy1 = TripBuddy(buddy_user_id=2, uuid="buddy-1")
+        buddy2 = TripBuddy(buddy_user_id=3, uuid="buddy-2")
 
         # Create trips with varying complexity
         trips = [

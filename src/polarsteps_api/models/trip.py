@@ -138,12 +138,8 @@ class TripBuddy(BaseModel):
 
     buddy_user_id: int
     uuid: str
-    username: Optional[str] = (
-        None  # Make username optional since it's missing from API response
-    )
 
 
-# TODO - Figure out circular dependencies (with User and Trip)
 class Trip(BaseModel):
     id: int
     uuid: str
@@ -288,7 +284,6 @@ class Trip(BaseModel):
         summary.update(
             {
                 "steps": [step.to_summary() for step in steps[:n_steps]],
-                "trip_buddies": [buddy.username for buddy in (self.trip_buddies or [])],
                 "trip_buddies_count": len(self.trip_buddies or []),
                 "media_count": sum(
                     len(step.media or []) for step in (self.all_steps or [])

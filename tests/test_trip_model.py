@@ -42,8 +42,8 @@ class TestTripToSummary:
     def test_to_summary_with_trip_buddies(self):
         """Test to_summary with trip buddies (shared trip)."""
         trip_buddies = [
-            TripBuddy(buddy_user_id=1, uuid="buddy-1", username="alice"),
-            TripBuddy(buddy_user_id=2, uuid="buddy-2", username="bob"),
+            TripBuddy(buddy_user_id=1, uuid="buddy-1"),
+            TripBuddy(buddy_user_id=2, uuid="buddy-2"),
         ]
 
         trip = Trip(
@@ -154,7 +154,7 @@ class TestTripToDetailedSummary:
             ),
         ]
 
-        trip_buddies = [TripBuddy(buddy_user_id=1, uuid="buddy-1", username="alice")]
+        trip_buddies = [TripBuddy(buddy_user_id=123, uuid="buddy-1")]
 
         trip = Trip(
             id=123,
@@ -178,7 +178,6 @@ class TestTripToDetailedSummary:
         assert detailed_summary["steps"][1]["name"] == "Rome Visit"
         assert detailed_summary["steps"][1]["location"]["country"] == "Italy"
 
-        assert detailed_summary["trip_buddies"] == ["alice"]
         assert detailed_summary["trip_buddies_count"] == 1
         assert detailed_summary["media_count"] == 2  # 2 media items from first step
 
@@ -281,7 +280,6 @@ class TestTripToDetailedSummary:
 
         detailed_summary = trip.to_detailed_summary()
 
-        assert detailed_summary["trip_buddies"] == []
         assert detailed_summary["trip_buddies_count"] == 0
 
     def test_to_detailed_summary_step_location_fallback(self):
