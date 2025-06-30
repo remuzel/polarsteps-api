@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 if TYPE_CHECKING:
     from polarsteps_api.models.user import User
@@ -106,8 +106,14 @@ class Step(BaseModel):
         return {
             "name": self.name,
             "description": self.description,
-            "timestamp": datetime.fromtimestamp(self.creation_time or 0).strftime("%Y/%m/%d %H:%M:%S"),
-            "location": self.location.model_dump(exclude={"uuid", "precision", "full_detail", "administrative_area"}) if self.location else {},
+            "timestamp": datetime.fromtimestamp(self.creation_time or 0).strftime(
+                "%Y/%m/%d %H:%M:%S"
+            ),
+            "location": self.location.model_dump(
+                exclude={"uuid", "precision", "full_detail", "administrative_area"}
+            )
+            if self.location
+            else {},
             "weather": {
                 "condition": self.weather_condition,
                 "temperature": self.weather_temperature,
@@ -211,17 +217,36 @@ class Trip(BaseModel):
             raise ValueError("Timestamp cannot be negative")
         return v
 
+    @model_validator(mode="after")
+    def validate_country_count(self) -> "Trip":
+        """Override the default country_count method which seems invalid"""
+        if self.country_count and self.country_count > 0:
+            # If the field seems correctly set, keep it
+            return self
+        if self.all_steps is None:
+            # If there are no steps, set it to 0
+            self.country_count = 0
+            return self
+        countries = set()
+        for step in self.all_steps:
+            # Aggregate the countries from each step
+            if step and step.location and step.location.country_code:
+                countries.add(step.location.country_code)
+
+        self.country_count = len(countries)
+        return self
+
     @property
     def datetime_start(self) -> datetime:
         return datetime.fromtimestamp(self.start_date or 0)
 
     @property
     def datetime_end(self) -> datetime:
-        return datetime.fromtimestamp(self.start_date or 0)
+        return datetime.fromtimestamp(self.end_date or 0)
 
     @property
     def length_days(self) -> str:
-        length = (self.datetime_start - self.datetime_end).days + 1
+        length = (self.datetime_end - self.datetime_start).days + 1
         return f"{length} day{'' if length == 1 else 's'}"
 
     @property
@@ -250,7 +275,15 @@ class Trip(BaseModel):
 
     def to_detailed_summary(self, n_steps: int = 5) -> dict:
         """Return a more detailed summary including key steps"""
-        steps = [step for step in self.all_steps if len(step.name or "") > 0] if self.all_steps else []
+        steps = (
+            [
+                step
+                for step in self.all_steps
+                if len(step.name or "") > 0 and not step.is_deleted
+            ]
+            if self.all_steps
+            else []
+        )
         summary = self.to_summary()
         summary.update(
             {

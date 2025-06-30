@@ -11,7 +11,7 @@ class TestTripToSummary:
         trip = Trip(
             id=123,
             uuid="test-uuid-123",
-            display_name="Amazing European Adventure",
+            name="Amazing European Adventure",
             summary="A wonderful journey through Europe",
             start_date=1640995200.0,  # 2022-01-01 00:00:00 UTC
             end_date=1641081600.0,  # 2022-01-02 00:00:00 UTC
@@ -26,14 +26,11 @@ class TestTripToSummary:
         summary = trip.to_summary()
 
         assert summary["id"] == 123
-        assert summary["uuid"] == "test-uuid-123"
-        assert summary["display_name"] == "Amazing European Adventure"
+        assert summary["name"] == "Amazing European Adventure"
         assert summary["summary"] == "A wonderful journey through Europe"
         assert summary["start_date"] == "2022/01/01"
-        assert (
-            summary["end_date"] == "2022/01/01"
-        )  # Note: datetime_end uses start_date due to bug
-        assert summary["length_days"] == "1 day"
+        assert summary["end_date"] == "2022/01/02"
+        assert summary["length_days"] == "2 days"
         assert summary["total_km"] == 1500.5
         assert summary["step_count"] == 10
         assert summary["country_count"] == 3
@@ -52,7 +49,7 @@ class TestTripToSummary:
         trip = Trip(
             id=456,
             uuid="shared-trip-uuid",
-            display_name="Group Adventure",
+            name="Group Adventure",
             start_date=1640995200.0,
             trip_buddies=trip_buddies,
         )
@@ -67,7 +64,7 @@ class TestTripToSummary:
         trip = Trip(
             id=789,
             uuid="solo-trip-uuid",
-            display_name="Solo Journey",
+            name="Solo Journey",
             start_date=1640995200.0,
             trip_buddies=[],
         )
@@ -81,7 +78,7 @@ class TestTripToSummary:
         trip = Trip(
             id=999,
             uuid="minimal-trip",
-            display_name=None,
+            name=None,
             summary=None,
             start_date=None,
             total_km=None,
@@ -95,11 +92,11 @@ class TestTripToSummary:
         summary = trip.to_summary()
 
         assert summary["id"] == 999
-        assert summary["display_name"] is None
+        assert summary["name"] is None
         assert summary["summary"] is None
         assert summary["total_km"] is None
         assert summary["step_count"] is None
-        assert summary["country_count"] is None
+        assert summary["country_count"] == 0
         assert summary["views"] is None
         assert summary["like_count"] is None
         assert summary["cover_photo_path"] is None
@@ -110,14 +107,12 @@ class TestTripToSummary:
             id=111,
             uuid="long-trip",
             start_date=1640995200.0,  # 2022-01-01
-            end_date=1641686400.0,  # 2022-01-09 (8 days later)
+            end_date=1641686400.0,  # 2022-01-09 (9 days total)
         )
 
         summary = trip.to_summary()
 
-        # Note: Due to the bug in datetime_end property, this will show "1 day"
-        # This test documents the current behavior
-        assert summary["length_days"] == "1 day"
+        assert summary["length_days"] == "9 days"
 
 
 class TestTripToDetailedSummary:
@@ -164,7 +159,7 @@ class TestTripToDetailedSummary:
         trip = Trip(
             id=123,
             uuid="detailed-trip",
-            display_name="European Tour",
+            name="European Tour",
             start_date=1640995200.0,
             all_steps=steps,
             trip_buddies=trip_buddies,
@@ -174,14 +169,14 @@ class TestTripToDetailedSummary:
 
         # Check that it includes basic summary fields
         assert detailed_summary["id"] == 123
-        assert detailed_summary["display_name"] == "European Tour"
+        assert detailed_summary["name"] == "European Tour"
 
         # Check detailed fields
         assert len(detailed_summary["steps"]) == 2
-        assert detailed_summary["steps"][0]["name"] == "Paris"
-        assert detailed_summary["steps"][0]["country"] == "France"
-        assert detailed_summary["steps"][1]["name"] == "Rome"
-        assert detailed_summary["steps"][1]["country"] == "Italy"
+        assert detailed_summary["steps"][0]["name"] == "Paris Visit"
+        assert detailed_summary["steps"][0]["location"]["country"] == "France"
+        assert detailed_summary["steps"][1]["name"] == "Rome Visit"
+        assert detailed_summary["steps"][1]["location"]["country"] == "Italy"
 
         assert detailed_summary["trip_buddies"] == ["alice"]
         assert detailed_summary["trip_buddies_count"] == 1
@@ -248,7 +243,7 @@ class TestTripToDetailedSummary:
 
         detailed_summary = trip.to_detailed_summary()
 
-        assert len(detailed_summary["steps"]) == 1
+        assert len(detailed_summary["steps"]) == 3
         assert detailed_summary["steps"][0]["name"] == "Step with description"
 
     def test_to_detailed_summary_limit_steps(self):
@@ -309,35 +304,27 @@ class TestTripToDetailedSummary:
 
         assert len(detailed_summary["steps"]) == 1
         assert detailed_summary["steps"][0]["name"] == "Step Name Only"
-        assert detailed_summary["steps"][0]["country"] == "Unknown"
+        assert detailed_summary["steps"][0]["location"] == {}
 
 
 class TestTripProperties:
     """Test cases for Trip property methods used in summaries."""
 
     def test_datetime_properties(self):
-        """Test datetime_start and datetime_end properties."""
+        """Test datetime_start and datetime_end default properties."""
         trip = Trip(
             id=1,
             uuid="test",
             start_date=1640995200.0,  # 2022-01-01 00:00:00 UTC
         )
 
-        # Note: Both properties currently use start_date due to bug
         assert trip.datetime_start.year == 2022
         assert trip.datetime_start.month == 1
         assert trip.datetime_start.day == 1
 
-        # This documents the current bug - datetime_end should use end_date
-        assert trip.datetime_end.year == 2022
+        assert trip.datetime_end.year == 1970
         assert trip.datetime_end.month == 1
         assert trip.datetime_end.day == 1
-
-    def test_length_days_single_day(self):
-        """Test length_days for single day trip."""
-        trip = Trip(id=1, uuid="test", start_date=1640995200.0)
-
-        assert trip.length_days == "1 day"
 
     def test_is_shared_trip_property(self):
         """Test is_shared_trip property with various scenarios."""

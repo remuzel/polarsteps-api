@@ -185,7 +185,7 @@ class TestUserToTripsSummary:
             Trip(
                 id=1,
                 uuid="trip-1",
-                display_name="Europe Adventure",
+                name="Europe Adventure",
                 start_date=1640995200.0,
                 total_km=1500.0,
                 is_deleted=False,
@@ -193,7 +193,7 @@ class TestUserToTripsSummary:
             Trip(
                 id=2,
                 uuid="trip-2",
-                display_name="Asia Journey",
+                name="Asia Journey",
                 start_date=1641081600.0,
                 total_km=2000.0,
                 is_deleted=False,
@@ -201,7 +201,7 @@ class TestUserToTripsSummary:
             Trip(
                 id=3,
                 uuid="trip-3",
-                display_name="Deleted Trip",
+                name="Deleted Trip",
                 start_date=1641168000.0,
                 total_km=500.0,
                 is_deleted=True,  # This should be excluded
@@ -228,12 +228,12 @@ class TestUserToTripsSummary:
 
         trip1 = trips_summary["trips"][0]
         assert trip1["id"] == 1
-        assert trip1["display_name"] == "Europe Adventure"
+        assert trip1["name"] == "Europe Adventure"
         assert trip1["total_km"] == 1500.0
 
         trip2 = trips_summary["trips"][1]
         assert trip2["id"] == 2
-        assert trip2["display_name"] == "Asia Journey"
+        assert trip2["name"] == "Asia Journey"
         assert trip2["total_km"] == 2000.0
 
     def test_to_trips_summary_no_trips(self):
@@ -362,7 +362,7 @@ class TestUserModelIntegration:
             Trip(
                 id=1,
                 uuid="solo-trip",
-                display_name="Solo Adventure",
+                name="Solo Adventure",
                 start_date=1640995200.0,
                 total_km=1000.0,
                 step_count=5,
@@ -375,7 +375,7 @@ class TestUserModelIntegration:
             Trip(
                 id=2,
                 uuid="shared-trip",
-                display_name="Group Adventure",
+                name="Group Adventure",
                 start_date=1641081600.0,
                 total_km=2000.0,
                 step_count=10,
@@ -406,9 +406,9 @@ class TestUserModelIntegration:
         assert len(trips_summary["trips"]) == 2
 
         solo_trip = trips_summary["trips"][0]
-        assert solo_trip["display_name"] == "Solo Adventure"
+        assert solo_trip["name"] == "Solo Adventure"
         assert solo_trip["is_shared_trip"] is False
 
         shared_trip = trips_summary["trips"][1]
-        assert shared_trip["display_name"] == "Group Adventure"
+        assert shared_trip["name"] == "Group Adventure"
         assert shared_trip["is_shared_trip"] is True
