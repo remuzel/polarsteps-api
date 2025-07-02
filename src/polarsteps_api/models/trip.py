@@ -102,13 +102,17 @@ class Step(BaseModel):
     media: Optional[list[MediaItem]] = []
     user_likes: Optional[list[dict[str, Any]]] = []
 
+    @property
+    def timestamp(self) -> str:
+        return datetime.fromtimestamp(self.start_time or 0).strftime(
+            "%Y/%m/%d %H:%M:%S"
+        )
+
     def to_summary(self) -> dict:
         return {
             "name": self.name,
             "description": self.description,
-            "timestamp": datetime.fromtimestamp(self.creation_time or 0).strftime(
-                "%Y/%m/%d %H:%M:%S"
-            ),
+            "timestamp": self.timestamp,
             "location": self.location.model_dump(
                 exclude={"uuid", "precision", "full_detail", "administrative_area"}
             )
