@@ -1,8 +1,9 @@
 [project]
 name = "polarsteps-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "Unofficial Python client for Polarsteps travel data API"
 readme = "README.md"
+authors = [{name = "Remi Uzel"}]
 requires-python = ">=3.10"
 dependencies = [
     "cachetools>=6.1.0",
