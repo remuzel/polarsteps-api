@@ -103,6 +103,33 @@ class User(BaseModel):
         n_followees = len(self.followees or [])
         return n_followees > n_followers
 
+    def to_profile(self) -> dict:
+        return {
+            "id": self.id,
+            "username": self.username,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "description": self.description,
+            "profile_image_path": self.profile_image_path,
+            "country_count": self.country_count,
+            "trip_count": len(self.alltrips or []),
+            "living_location": self.living_location.model_dump(
+                exclude={"uuid", "precision"}
+            )
+            if self.living_location
+            else "Unknown",
+            "is_popular": self.is_popular,
+        }
+
+    def to_social(self) -> dict:
+        return {
+            "followers": [follower.username for follower in (self.followers or [])],
+            "followers_count": len(self.followers or []),
+            "followees": [followee.username for followee in (self.followees or [])],
+            "followees_count": len(self.followees or []),
+            "is_popular": self.is_popular,
+        }
+
     def to_summary(self) -> dict:
         """Return a compact summary of the user"""
         return {
