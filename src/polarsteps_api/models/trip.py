@@ -122,6 +122,7 @@ class Step(BaseModel):
                 "condition": self.weather_condition,
                 "temperature": self.weather_temperature,
             },
+            "medias": len(self.media or []),
             "views": self.views,
             "comments": self.comment_count,
             "likes": len(self.user_likes or []),
