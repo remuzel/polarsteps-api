@@ -1,16 +1,35 @@
-# Polarsteps API Client
+# 🧭 Polarsteps API Client
+
+`polarsteps-api` is a light Python wrapper built on top of REST APIs discovered on https://www.polarsteps.com! The goal of this package is to allow open-source, fan-based development of Polarsteps features. In their own words:
+
+> At Polarsteps, everyone is an explorer at heart. So it’s only fitting that our app wasn’t born at a desk, but on a catamaran, halfway across the Atlantic. No business plan, no boardroom — just Niek, a Dutch adventurer with a vision, a bit of technical know-how, and nothing but open water as far as the eye could see.
+>
+> The idea was simple: capture the adventure and let others follow along. Armed with a basic satellite setup, Niek created a way to ping his location and his descriptions of the day to a server back home, mapping his journey in real time so friends and family could come for the ride.
+The more he traveled, the more he tracked. The more he tracked, the more people followed.
+>
+> But some did more than follow — they saw potential. What if this wasn’t just for one trip? What if it was for all travelers?
+
+🧭 Go forth and build!
+
+## Available APIs
+1. `get_user_by_username` - Fetch complete user profile including trips, statistics, followers, and followees
+2. `get_trip` - Get detailed information for individual trips by ID
+3. _more as/if they come!_
 
 ## Installation
-
-### For development
 ```bash
-uv sync --dev
+uv sync --dev && uv pip install -e .
 uv run main.py
 ```
-### Release [TBC]
-```bash
-pip install polarsteps-api
-```
+
+## Remember Tokens
+The API client relies on an authenticated token, for which you must be an active Polarsteps customer. To obtain this:
+1. Log in to [Polarsteps](https://www.polarsteps.com/) in your browser
+2. Open browser developer tools (F12)
+3. Go to Application/Storage tab → Cookies
+4. Find the `remember_token` cookie value
+5. Copy this value to use with the client
+  - _e.g.: `export POLARSTEPS_REMEMBER_TOKEN=<your-token-here>`_
 
 ## Quick Start
 ```python
@@ -45,41 +64,24 @@ if get_trip_response.is_error or trip is None:
 print(f"Random Trip - {(trip.name or 'Unknown').strip()} {int(trip.total_km):,}km")  # type: ignore
 ```
 
-## Remember Tokens
-The API client relies on an authenticated token, for which you must be an active Polarsteps customer. To obtain this:
-1. Log in to [Polarsteps](https://www.polarsteps.com/) in your browser
-2. Open browser developer tools (F12)
-3. Go to Application/Storage tab → Cookies
-4. Find the `remember_token` cookie value
-5. Copy this value to use with the client
-  - _e.g.: `export POLARSTEPS_REMEMBER_TOKEN=<your-token-here>`_
-
-## Supported APIs
-1. `get_user_by_username` - Fetch complete user profile including trips, statistics, followers, and followees
-2. `get_trip` - Get detailed information for individual trips by ID
-3. _more tbd!_
-
 ---
 
-## ⚠️ Important Disclaimers
-
-### Legal Notice
-This project is **NOT affiliated with, endorsed by, or connected to Polarsteps** in any way. It uses undocumented APIs discovered through browser network analysis for educational and personal use purposes.
-
-### Terms of Use
-- **Personal Use Only**: This tool is intended solely for accessing your own Polarsteps data
-- **User Responsibility**: You are solely responsible for complying with Polarsteps' Terms of Service
-- **Authentication Required**: You must have legitimate access to a Polarsteps account and provide your own authentication cookies
-- **No Warranty**: This software is provided "as-is" without any warranties or guarantees
-
-### Risks and Limitations
-- Polarsteps may change their APIs at any time, breaking this tool
-- Using this tool may violate Polarsteps' Terms of Service
-- Your account could potentially be suspended or terminated
-- The tool may stop working without notice due to security or policy changes
-
-### Respectful Usage
-- Do not use this for commercial purposes or high-volume data extraction
-- Consider the impact on Polarsteps' infrastructure
-
-**By using this software, you acknowledge that you understand these risks and agree to use it responsibly.**
+> [!WARNING]\
+> This project is **NOT affiliated with, endorsed by, or connected to Polarsteps** in any way. It uses undocumented APIs discovered through browser network analysis for educational and personal use purposes.
+> ### Terms of Use
+> - **Personal Use Only**: This tool is intended solely for accessing your own Polarsteps data
+> - **User Responsibility**: You are solely responsible for complying with Polarsteps' Terms of Service
+> - **Authentication Required**: You must have legitimate access to a Polarsteps account and provide your own authentication cookies
+> - **No Warranty**: This software is provided "as-is" without any warranties or guarantees
+>
+> ### Risks and Limitations
+> - Polarsteps may change their APIs at any time, breaking this tool
+> - Using this tool may violate Polarsteps' Terms of Service
+> - Your account could potentially be suspended or terminated
+> - The tool may stop working without notice due to security or policy changes
+>
+> ### Respectful Usage
+> - Do not use this for commercial purposes or high-volume data extraction
+> - Consider the impact on Polarsteps' infrastructure
+>
+> **By using this software, you acknowledge that you understand these risks and agree to use it responsibly.**
